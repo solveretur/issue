@@ -1,6 +1,8 @@
 package com.solveretur.issue;
 
 
+import java.util.Optional;
+
 final class LessThan50Handler extends AbstractHandler {
 
     public LessThan50Handler() {
@@ -8,12 +10,12 @@ final class LessThan50Handler extends AbstractHandler {
     }
 
     @Override
-    Results handle(final ProcessingType processingType, final InputData inputData) {
+    Optional<Results> handle(final ProcessingType processingType, final InputData inputData, final GroupedInputData groupedInputData) {
         if (inputData.getData() == 25) {
-            return dropData(processingType, inputData);
+            return dropData(processingType, inputData, groupedInputData);
         }
         final String res = String.format("HANDLED BY LessThan50Handler with type: %s", processingType.name());
-        return new Results(inputData.getData(), res);
+        return Optional.of(new Results(inputData.getData(), res));
     }
 
     //    here is the method you need to implement
@@ -23,7 +25,8 @@ final class LessThan50Handler extends AbstractHandler {
     //    >> it should go back to the stream and be processed as ODD_NUMBERS
     //    of course you can delete all handlers and structure the code differently but the contract needs to apply
     //    for input 25 when processing as LESS_THAN_50 it need to go back to the stream
-    private Results dropData(final ProcessingType processingType, final InputData inputData) {
-        return new Results(inputData.getData(), "TO BE IMPLEMENTED");
+    private Optional<Results> dropData(final ProcessingType processingType, final InputData inputData, final GroupedInputData groupedInputData) {
+        groupedInputData.feedback(ProcessingType.findMatching(inputData, processingType), inputData);
+        return Optional.empty();
     }
 }
